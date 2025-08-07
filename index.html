@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexusLearn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class', // Enable dark mode
+      theme: {
+        extend: {
+          colors: {
+            primary: {"50":"#eff6ff","100":"#dbeafe","200":"#bfdbfe","300":"#93c5fd","400":"#60a5fa","500":"#3b82f6","600":"#2563eb","700":"#1d4ed8","800":"#1e40af","900":"#1e3a8a","950":"#172554"},
+            secondary: {"50":"#f8fafc","100":"#f1f5f9","200":"#e2e8f0","300":"#cbd5e1","400":"#94a3b8","500":"#64748b","600":"#475569","700":"#334155","800":"#1e293b","900":"#0f172a","950":"#020617"}
+          }
+        }
+      }
+    }
+  </script>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.6.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai",
+    "react-markdown": "https://esm.sh/react-markdown@9",
+    "remark-gfm": "https://esm.sh/remark-gfm@4",
+    "react-router": "https://esm.sh/react-router@^7.6.3"
+  }
+}
+</script>
+<style>
+  @media print {
+    body {
+      background-color: white !important; /* Ensure white background for printing */
+      -webkit-print-color-adjust: exact; /* Chrome, Safari */
+      color-adjust: exact; /* Standard */
+    }
+    .no-print {
+      display: none !important;
+    }
+    .printable-area {
+      box-shadow: none !important;
+      border: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      max-width: 100% !important;
+    }
+    .report-page, .exam-analysis-page, .mark-sheet-page {
+      width: 100%;
+      margin: 0;
+      padding: 10px; /* Minimal padding for print */
+      box-shadow: none !important;
+      border: none !important;
+    }
+    .print-header-text {
+        display: block !important;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    /* Ensure tables and content take full width and are readable */
+    table {
+        width: 100% !important;
+        font-size: 10pt !important; /* Adjust as needed for readability */
+    }
+    th, td {
+        padding: 4px !important; /* Adjust padding for print */
+    }
+    h1, h2, h3, h4, h5, h6 {
+        color: black !important; /* Ensure text is black for printing */
+    }
+    /* Specific adjustments for report display */
+    .report-display-container {
+        border: 1px solid #ccc !important; /* Light border for the report itself */
+        padding: 20px !important;
+    }
+     /* Hide unnecessary details in report print */
+    .report-display-container .text-xs.text-gray-500 { 
+        /* Example: hide report generated date or system name if too verbose for print */
+    }
+    .print-only {
+        display: block !important;
+    }
+    .screen-only {
+        display: none !important;
+    }
+    .profile-image-container-print {
+      display: block !important; /* Ensure image container is visible */
+      text-align: right; /* Align image to the right on print */
+      float: right; /* Float for classic layout */
+      margin-left: 15px;
+    }
+    .profile-image-print {
+      max-width: 100px !important; /* Adjust as needed */
+      max-height: 120px !important;
+      border: 1px solid #ccc;
+    }
+    .report-header-main {
+        overflow: hidden; /* Clear float for student details */
+    }
+     .performance-bar-graph-print svg {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    .signature-section-print {
+        margin-top: 30px !important;
+        page-break-inside: avoid !important;
+    }
+    .signature-line {
+        border-bottom: 1px solid black;
+        min-width: 200px;
+        display: inline-block;
+        margin-left: 10px;
+    }
+    .signature-block {
+        margin-top: 20px;
+    }
+
+    /* Mark Sheet Print Styles */
+    .mark-sheet-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9pt;
+    }
+    .mark-sheet-table th, .mark-sheet-table td {
+        border: 1px solid #333;
+        padding: 5px;
+        height: 28px; /* Give space to write */
+        text-align: left;
+    }
+    .mark-sheet-table th {
+        background-color: #e9e9e9 !important;
+        font-weight: bold;
+    }
+    .mark-sheet-table .subject-col {
+        width: 45px; /* Fixed width for subject columns */
+        text-align: center;
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        white-space: nowrap;
+    }
+    .mark-sheet-table .student-name-col {
+        width: 200px;
+    }
+
+    /* Exam Analysis Print Styles */
+    .exam-analysis-page .analysis-summary-grid {
+      display: block !important;
+    }
+    .exam-analysis-page .analysis-summary-grid > div {
+      page-break-inside: avoid;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+    }
+    .exam-analysis-page tr, .exam-analysis-page td, .exam-analysis-page th {
+        page-break-inside: avoid;
+    }
+
+
+  }
+  .print-only {
+    display: none;
+  }
+  .profile-image-container-print {
+    display: none; /* Hidden on screen by default */
+  }
+  .profile-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+  }
+  .profile-image-report {
+    width: 120px;
+    height: 150px;
+    object-fit: cover;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+  }
+  .bar-graph-container {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  .bar-graph svg {
+      width: 100%;
+      height: auto; /* Maintain aspect ratio */
+      max-height: 250px; /* Control max height */
+  }
+  .signature-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px dashed #999;
+  }
+  .signature-block {
+    margin-bottom: 20px;
+  }
+  .signature-line {
+      border-bottom: 1px solid black;
+      width: 250px;
+      display: inline-block;
+      margin-left: 5px;
+  }
+  .prose {
+    color: #374151; /* gray-700 */
+    line-height: 1.625;
+  }
+  .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+      color: #1f2937; /* gray-800 */
+      font-weight: 600;
+      margin-top: 1.25em;
+      margin-bottom: 0.5em;
+  }
+  .prose h1 { font-size: 2.25rem; }
+  .prose h2 { font-size: 1.875rem; }
+  .prose h3 { font-size: 1.5rem; }
+  .prose h4 { font-size: 1.25rem; }
+  .prose p {
+      margin-top: 1em;
+      margin-bottom: 1em;
+  }
+  .prose ul, .prose ol {
+      margin-top: 1em;
+      margin-bottom: 1em;
+      padding-left: 1.75rem;
+  }
+  .prose li {
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+  }
+  .prose ul {
+      list-style-type: disc;
+  }
+  .prose ol {
+      list-style-type: decimal;
+  }
+  .prose strong {
+      font-weight: 600;
+      color: #111827; /* gray-900 */
+  }
+  .prose blockquote {
+      margin-top: 1.5em;
+      margin-bottom: 1.5em;
+      padding-left: 1em;
+      border-left: 0.25rem solid #d1d5db; /* gray-300 */
+      font-style: italic;
+      color: #4b5563; /* gray-600 */
+  }
+  .prose code {
+      background-color: #f3f4f6; /* gray-100 */
+      color: #111827;
+      padding: 0.2em 0.4em;
+      margin: 0;
+      font-size: 85%;
+      border-radius: 3px;
+  }
+  .prose pre {
+      background-color: #1f2937; /* gray-800 */
+      color: #f9fafb; /* gray-50 */
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin-top: 1.5em;
+      margin-bottom: 1.5em;
+  }
+  .prose pre code {
+      background-color: transparent;
+      padding: 0;
+      font-size: 100%;
+  }
+  .prose table {
+    width: 100%;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    border-collapse: collapse;
+  }
+  .prose th, .prose td {
+    border: 1px solid #d1d5db; /* gray-300 */
+    padding: 0.5em 0.75em;
+  }
+  .prose thead {
+    background-color: #f9fafb; /* gray-50 */
+  }
+  .prose thead th {
+    font-weight: 600;
+  }
+
+  /* Dark mode prose styles */
+  .dark .prose { color: #d1d5db; /* gray-300 */ }
+  .dark .prose h1, .dark .prose h2, .dark .prose h3, .dark .prose h4, .dark .prose h5, .dark .prose h6 { color: #f9fafb; /* gray-50 */ }
+  .dark .prose strong { color: #f9fafb; }
+  .dark .prose a { color: #93c5fd; }
+  .dark .prose a:hover { color: #60a5fa; }
+  .dark .prose blockquote { border-left-color: #4b5563; color: #9ca3af; }
+  .dark .prose code { background-color: #374155; color: #e5e7eb; }
+  .dark .prose thead { background-color: #374155; }
+  .dark .prose th, .dark .prose td { border-color: #4b5563; }
+</style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-gray-100 dark:bg-slate-900">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

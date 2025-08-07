@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Copy of Copy of Copy of Copy of NexusLearn Exam Analyzer",
+  "description": "NexusLearn: A web application for analyzing exam data and generating report forms for Kenyan secondary schools, with role-based access for admins, teachers, and parents.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "prompt": ""
+}
